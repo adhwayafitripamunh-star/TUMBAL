@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JOKIBOBBER Terminal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        
+        body {
+            background-color: #0a0a12;
+            color: #0af;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Grid background effect */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 170, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 170, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            border: 3px solid #0af;
+            padding: 25px;
+            background-color: rgba(10, 15, 30, 0.85);
+            box-shadow: 
+                0 0 20px rgba(0, 170, 255, 0.5),
+                inset 0 0 20px rgba(0, 170, 255, 0.2);
+            z-index: 1;
+            text-transform: uppercase;
+        }
+        
+        /* Terminal scanline effect */
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                transparent 50%,
+                rgba(0, 170, 255, 0.03) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 2;
+            pointer-events: none;
+            animation: scanline 10s linear infinite;
+        }
+        
+        @keyframes scanline {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100%; }
+        }
+        
+        /* Pixel border effect */
+        .container::after {
+            content: "";
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border: 2px solid #0af;
+            z-index: -1;
+            opacity: 0.5;
+            background-image: 
+                linear-gradient(45deg, transparent 48%, rgba(0, 170, 255, 0.1) 50%, transparent 52%),
+                linear-gradient(-45deg, transparent 48%, rgba(0, 170, 255, 0.1) 50%, transparent 52%);
+            background-size: 10px 10px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 2.8rem;
+            letter-spacing: 4px;
+            color: #0af;
+            text-shadow: 
+                0 0 5px #0af,
+                0 0 10px #0af;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            color: #5af;
+            margin-bottom: 5px;
+        }
+        
+        .corruption-line {
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            color: #f05;
+            text-shadow: 0 0 5px #f05;
+            margin-bottom: 30px;
+            text-align: center;
+            border-bottom: 1px dashed #f05;
+            padding-bottom: 10px;
+        }
+        
+        .list-header {
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            color: #0fa;
+            text-shadow: 0 0 5px #0fa;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .data-list {
+            list-style-type: none;
+            margin-bottom: 30px;
+        }
+        
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 15px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(0, 170, 255, 0.3);
+            background-color: rgba(0, 20, 40, 0.4);
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+        }
+        
+        .data-label {
+            color: #0af;
+        }
+        
+        .data-value {
+            color: #0fa;
+            font-weight: bold;
+        }
+        
+        .corrupt { color: #f05; }
+        .aether { color: #5af; }
+        .floral { color: #af5; }
+        .singularity { color: #fa0; }
+        
+        .contact {
+            text-align: center;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            color: #fa0;
+            text-shadow: 0 0 5px #fa0;
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid #fa0;
+            background-color: rgba(255, 170, 0, 0.05);
+        }
+        
+        .pixel {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            background-color: currentColor;
+            margin: 0 1px;
+        }
+        
+        .blink {
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .pixel-border {
+            border-style: solid;
+            border-width: 2px;
+            border-image-slice: 2;
+            border-image-width: 2;
+            border-image-outset: 0;
+            border-image-source: url('data:image/svg+xml;utf8,<?xml version="1.0" encoding="UTF-8"?><svg width="12" height="12" xmlns="http://www.w3.org/2000/svg"><path d="M0,0 L12,0 L12,12 L0,12 Z" fill="none" stroke="%230af" stroke-width="4"/></svg>');
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .title { font-size: 2rem; }
+            .subtitle, .corruption-line, .contact { font-size: 1rem; }
+            .data-item { font-size: 1rem; }
+            .container { padding: 15px; }
+        }
+        
+        @media (max-width: 480px) {
+            .title { font-size: 1.5rem; }
+            .data-item { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title blink">WELCOME DI MENU SECRET TUMBAL</h1>
+            <p class="subtitle">DISNI SECRET TUMBAL</p>
+        </div>
+        
+        <div class="corruption-line">
+            YANG DI JADIKAN BATU ENCHANT
+        </div>
+        
+        <h2 class="list-header">LIST HARGA</h2>
+        
+        <ul class="data-list">
+            <li class="data-item">
+                <span class="data-label corrupt">1 TUMBAL:<span class="pixel"></span><span class="pixel"></span><span class="pixel"></span></span>
+                <span class="data-value 1 TUMBAL">5K</span>
+            </li>
+            <li class="data-item">
+                <span class="data-label aether">2 TUMBAL:<span class="pixel"></span><span class="pixel"></span><span class="pixel"></span></span>
+                <span class="data-value 2 TUMBAL">10K</span>
+            </li>
+            <li class="data-item">
+                <span class="data-label floral">3 TUMBAL:<span class="pixel"></span><span class="pixel"></span><span class="pixel"></span></span>
+                <span class="data-value ANGLER">15K</span>
+            </li>
+            <li class="data-item">
+                <span class="data-label singularity">4 TUMBAL:<span class="pixel"></span><span class="pixel"></span><span class="pixel"></span></span>
+                <span class="data-value singularity">20K</span>
+            </li>
+
+<li class="data-item">
+                <span class="data-label floral">DAN SETERUSNYA:<span class="pixel"></span><span class="pixel"></span><span class="pixel"></span></span>
+                </li>
+        </ul>
+        
+        <div class="contact">
+            klik <a href="https://wa.me/6287874774089">disini</a> untuk melakukan transaksi!<span class="blink">_</span>
+        </div>
+    </div>
+
+    <script>
+        // Efek ketik teks untuk animasi terminal
+        document.addEventListener('DOMContentLoaded', function() {
+            const title = document.querySelector('.title');
+            const originalTitle = title.textContent;
+            title.textContent = '';
+            
+            let i = 0;
+            const typeWriter = () => {
+                if (i < originalTitle.length) {
+                    title.textContent += originalTitle.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 50);
+                }
+            };
+            
+            // Mulai efek ketik setelah delay kecil
+            setTimeout(typeWriter, 500);
+            
+            // Efek flicker acak untuk elemen data
+            const dataItems = document.querySelectorAll('.data-item');
+            setInterval(() => {
+                const randomItem = dataItems[Math.floor(Math.random() * dataItems.length)];
+                randomItem.style.opacity = Math.random() > 0.5 ? '0.7' : '1';
+                randomItem.style.textShadow = Math.random() > 0.7 ? '0 0 8px currentColor' : 'none';
+                
+                // Reset setelah delay singkat
+                setTimeout(() => {
+                    randomItem.style.opacity = '1';
+                    randomItem.style.textShadow = 'none';
+                }, 100);
+            }, 800);
+            
+            // Efek pixel grid dinamis
+            const gridOverlay = document.querySelector('.grid-overlay');
+            setInterval(() => {
+                const size = 15 + Math.floor(Math.random() * 10);
+                gridOverlay.style.backgroundSize = `${size}px ${size}px`;
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
